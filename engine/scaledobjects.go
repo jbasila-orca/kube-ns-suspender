@@ -21,7 +21,7 @@ func checkRunningScaledobjectsConformity(ctx context.Context, l zerolog.Logger, 
 		// Check if the deployment is annotated and deployment name
 		origName := so.Annotations[prefix+originalScaleTargetRefName]
 		if origName != "" {
-			patchedName := fmt.Sprintf("%s-suspened", origName)
+			patchedName := fmt.Sprintf("%s-suspend", origName)
 			if so.Spec.ScaleTargetRef.Name != patchedName {
 				continue
 			}
@@ -45,7 +45,7 @@ func checkSuspendedScaledobejctsConformity(ctx context.Context, l zerolog.Logger
 		origName := so.Annotations[prefix+originalScaleTargetRefName]
 		if origName == "" || so.Spec.ScaleTargetRef.Name == origName {
 			// TODO: what about fixing the annotation original Replicas here ?
-			patchedName := fmt.Sprintf("%s-suspened", so.Spec.ScaleTargetRef.Name)
+			patchedName := fmt.Sprintf("%s-suspend", so.Spec.ScaleTargetRef.Name)
 			l.Info().Str("scaledobjects", so.Name).Msgf("changing scaleTargetRef name from %s to %s", origName, patchedName)
 			// patch the deployment
 			if err := patchScaledobjects(ctx, cs, ns, so.Name, prefix, patchedName); err != nil {
