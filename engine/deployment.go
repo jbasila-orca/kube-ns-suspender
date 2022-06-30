@@ -21,7 +21,8 @@ func checkRunningDeploymentsConformity(ctx context.Context, l zerolog.Logger, de
 			// get the desired number of replicas
 			repl, err := strconv.Atoi(d.Annotations[prefix+originalReplicas])
 			if err != nil {
-				return hasBeenPatched, err
+				continue
+				// return hasBeenPatched, errors.Wrapf(err, "deploymentName = %s", d.Name)
 			}
 
 			l.Info().Str("deployment", d.Name).Msgf("scaling %s from 0 to %d replicas", d.Name, repl)

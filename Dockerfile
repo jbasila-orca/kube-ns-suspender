@@ -20,8 +20,7 @@ RUN go build \
         -ldflags="-X 'main.Version=${VERSION}' -X 'main.BuildDate=${BUILD_DATE}'" \
         -o kube-ns-suspender \
         . \
-    && strip kube-ns-suspender \
-    && /usr/local/bin/upx -9 kube-ns-suspender
+    && strip kube-ns-suspender
 
 
 FROM gcr.io/distroless/base-debian10

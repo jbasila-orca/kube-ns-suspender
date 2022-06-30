@@ -30,6 +30,8 @@ const (
 
 	// annotation used on resources (deployments, statefulsets...)
 	originalReplicas = "originalReplicas"
+
+	originalScaleTargetRefName = "originalScaleTargetRefName"
 )
 
 type Engine struct {

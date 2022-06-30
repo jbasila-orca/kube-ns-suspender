@@ -15,6 +15,8 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 
+	kedaclientset "github.com/kedacore/keda/v2/pkg/generated/clientset/versioned"
+
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 )
 
@@ -110,6 +112,16 @@ func main() {
 
 	// create the in-cluster config
 	start = time.Now()
+
+	// c, err := clientcmd.LoadFromFile("/Users/yoavalon/.kube/config")
+	// if err != nil {
+	// 	eng.Logger.Fatal().Err(err).Msg("FML")
+	// }
+
+	// config, err := clientcmd.NewDefaultClientConfig(
+	// 	*c,
+	// 	&clientcmd.ConfigOverrides{}).ClientConfig()
+
 	config, err := rest.InClusterConfig()
 	if err != nil {
 		eng.Logger.Fatal().Err(err).Msg("cannot create in-cluster configuration")
@@ -128,12 +140,17 @@ func main() {
 	if err != nil {
 		eng.Logger.Fatal().Err(err).Msg("cannot create the clientset")
 	}
-	eng.Logger.Info().Msgf("clientset successfully created in %s", time.Since(start))
+
+	kedaclientset, err := kedaclientset.NewForConfig(config)
+	if err != nil {
+		eng.Logger.Fatal().Err(err).Msg("cannot create the keda clientset")
+	}
+	eng.Logger.Info().Msgf("clientsets successfully created in %s", time.Since(start))
 
 	eng.Logger.Info().Msgf("starting 'Watcher' and 'Suspender' routines")
 	ctx := context.Background()
 	go eng.Watcher(ctx, clientset)
-	go eng.Suspender(ctx, clientset)
+	go eng.Suspender(ctx, clientset, kedaclientset)
 
 	// wait forever
 	select {}
