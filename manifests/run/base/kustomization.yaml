@@ -9,5 +9,4 @@ resources:
   - service-metrics.yaml
   - service-pprof.yaml
   - service-ui.yaml
-  - serviceMonitor.yaml
   - ingress.yaml
