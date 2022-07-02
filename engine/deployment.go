@@ -27,7 +27,7 @@ func checkRunningDeploymentsConformity(ctx context.Context, l zerolog.Logger, de
 
 			l.Info().Str("deployment", d.Name).Msgf("scaling %s from 0 to %d replicas", d.Name, repl)
 			// patch the deployment
-			if err := patchDeploymentReplicas(ctx, cs, ns, d.Name, prefix, repl); err != nil {
+			if err := patchDeploymentReplicas(ctx, l, cs, ns, d.Name, prefix, repl); err != nil {
 				return hasBeenPatched, err
 			}
 			hasBeenPatched = true
@@ -43,7 +43,7 @@ func checkSuspendedDeploymentsConformity(ctx context.Context, l zerolog.Logger, 
 			// TODO: what about fixing the annotation original Replicas here ?
 			l.Info().Str("deployment", d.Name).Msgf("scaling %s from %d to 0 replicas", d.Name, repl)
 			// patch the deployment
-			if err := patchDeploymentReplicas(ctx, cs, ns, d.Name, prefix, 0); err != nil {
+			if err := patchDeploymentReplicas(ctx, l, cs, ns, d.Name, prefix, 0); err != nil {
 				return err
 			}
 		}
@@ -52,7 +52,7 @@ func checkSuspendedDeploymentsConformity(ctx context.Context, l zerolog.Logger, 
 }
 
 // patchDeploymentReplicas updates the number of replicas of a given deployment
-func patchDeploymentReplicas(ctx context.Context, cs *kubernetes.Clientset, ns, d, prefix string, repl int) error {
+func patchDeploymentReplicas(ctx context.Context, l zerolog.Logger, cs *kubernetes.Clientset, ns, d, prefix string, repl int) error {
 	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
 		result, err := cs.AppsV1().Deployments(ns).Get(ctx, d, metav1.GetOptions{})
 		if err != nil {
@@ -63,6 +63,7 @@ func patchDeploymentReplicas(ctx context.Context, cs *kubernetes.Clientset, ns, 
 		if repl == 0 {
 			result.Annotations[prefix+originalReplicas] = strconv.Itoa(int(*result.Spec.Replicas))
 		} else {
+			l.Info().Str("deployment", d).Msgf("deleteing annotation %s", prefix+originalReplicas)
 			delete(result.Annotations, prefix+originalReplicas)
 		}
 		result.Spec.Replicas = flip(int32(repl))
