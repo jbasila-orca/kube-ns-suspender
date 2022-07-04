@@ -62,7 +62,7 @@ func New(opt Options) (*Engine, error) {
 	var err error
 	e := Engine{
 		Logger:  zerolog.New(os.Stderr).With().Timestamp().Logger(),
-		Wl:      make(chan v1.Namespace, 50),
+		Wl:      make(chan v1.Namespace, 1000),
 		Options: opt,
 	}
 
