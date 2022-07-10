@@ -30,8 +30,8 @@ const (
 
 	// annotation used on resources (deployments, statefulsets...)
 	originalReplicas = "originalReplicas"
-
 	originalScaleTargetRefName = "originalScaleTargetRefName"
+	kedaAutoscalingPaused = "autoscaling.keda.sh/paused-replicas"
 )
 
 type Engine struct {
